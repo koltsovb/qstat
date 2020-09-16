@@ -129,7 +129,8 @@ end
 
 function M.stop()
 	if fiber_object ~= nil then
-		fiber_object.cancel()
+		fiber_object:cancel()
+		fiber_object = nil
 	end
 end
 
