@@ -1,8 +1,3 @@
---[[local exports = {}
-exports.myfun = function(input_string)
-   print('Hello', input_string)
-end
-return exports]]
 local fiber = require("fiber")
 local config = require('config')
 local log = require('log')
@@ -14,9 +9,7 @@ local M = {}
 local stat_job_name = 'stat_job'
 local stat = graphite(config.get('app.metrics'))
 
-M.myfun = function(input_string)
-	log.info('Hello')
-end
+local fiber_object 
 
 function M.check_format()
 	for _, tube_rc in box.space._queue:pairs() do
@@ -120,15 +113,24 @@ function M.send_stat(iteration_count)
 				local name = queue_statuses[status] or 'unknown'
 				local key = string.format('tasks.%s.%d', name, priority)
 				stat:send(key, count)
+				log.info('%s %s', key, count)
 			end
 		end
 
     end
 end
 
-fiber.create(function()
-	fiber.name(stat_job_name)
-	M.safe_send_stat()
-end)
+function M.start()
+	fiber_object = fiber.create(function()
+		fiber.name(stat_job_name)
+		M.safe_send_stat()
+	end)
+end
+
+function M.stop()
+	if fiber_object ~= nil then
+		fiber_object.cancel()
+	end
+end
 
 return M
