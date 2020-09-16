@@ -39,7 +39,7 @@ dependencies = {
 build = {
     type = 'builtin';
     modules = {
-        ['qstat'] = 'qstat/qstat.lua';
+        ['qstat'] = 'qstat.lua';
     }
 }
 -- vim: syntax=lua ts=4 sts=4 sw=4 et
